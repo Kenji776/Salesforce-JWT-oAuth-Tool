@@ -22,6 +22,10 @@ node server.js
 
 Or just run the start.bat file (for windows machines)
 
+Question: The redirect part of the authorize a user isn't working. It's saying something about bad redirect?
+
+Answer: That's not a question. But anyway, the fix is in your connected app add whatever you are using as your oauth_redirect_url in the config file. When the authorization is performed that callback is invoked but it has to be whitelisted in the app to be allowed. So just add that URL to the Callback URL configuration of your connected app.
+
 Question: What is the config file?
 
 Answer: The config file (config\config.json) is a JSON structured list of configuration parameters you can adjust as needed for your specific orginzation. If a config file is not found when the program is started an empty one will be created that you can then populate with your values.

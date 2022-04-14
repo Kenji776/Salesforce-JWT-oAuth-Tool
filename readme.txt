@@ -1,6 +1,6 @@
 Question: What is this for?
 
-Answer: When configuring a Salesforce Connected app to use certificates to authenticate you will use JSON Web Tokens to authenticate. This application can take your certificate's key file and sign a request to create a JWT. That JWT can then be used to sign HTTP requests to your Salesforce connected app and interact with it. 
+Answer: When configuring a Salesforce Connected app to use certificates to authenticate you will use JSON Web Tokens to authenticate. This application can take your certificate's key file and sign a request to create a JWT. That JWT can then be used to sign HTTP requests to your Salesforce connected app and interact with it. This application assumes you already have your connected app configured as outlined at https://salesforcecentral.com/accessing-salesforce-with-jwt-oauth-flow/
 
 This application also allows you to authorize a user to use the given connected app. By default if your user has not logged in and you attempt to use the connected app you will recieve an error 
 
@@ -24,9 +24,20 @@ Or just run the start.bat file (for windows machines)
 
 Question: What is the config file?
 
-Answer: The config file (config\config.json) is a JSON structured list of configuration parameters you can adjust as needed for your specific orginzation. If a config file is not found when the progrma is started an empty one will be created that you can then populate with your values.
+Answer: The config file (config\config.json) is a JSON structured list of configuration parameters you can adjust as needed for your specific orginzation. If a config file is not found when the program is started an empty one will be created that you can then populate with your values.
 
 Question: In the config file should I use the standard salesforce domains (test.salesforce.com/login.salesforce.com) for the loginURI and tokenURI or my custom domain?
+
+loginURI = where to send login requests. It should be either "https://test.salesforce.com" or "https://login.salesforce.com"
+tokenURI = where to token requests. It should be either "https://test.salesforce.com/services/oauth2/token" or "https://login.salesforce.com/services/oauth2/token"
+authorizationURI = where to token requests. It should be either "https://test.salesforce.com/services/oauth2/authorize" or "https://login.salesforce.com/services/oauth2/authorize"
+client_id = The Id of your connected app. Go to setup -> App Manager -> Your app -> View -> Consumer Key
+client_secret = The secret key for your app. Go to setup -> App Manager -> Your app -> View -> Consumer Secret - > click to reveal
+user = Salesforce username for the user you want to authenticate and get JWT for.
+certificate_key_file = Key file for the certificate you provided to your connected app
+oauth_redirect_url = some listener page that Salesforce can call that will read the access_token param. The default of https://oauthdebugger.com/debug should work fine.
+oauth_scope = space seperated list of oAuth scope permissions as defined in your connected app.
+custom_domain = your custom salesforce domain if you have one (this property will be automatically set in a later release)
 
 Answer: Use the standard Salesforce domains; test.salesforce.com for sandboxes and login.salesforce.com for production and developer orgs.
 

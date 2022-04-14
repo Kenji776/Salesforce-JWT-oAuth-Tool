@@ -10,7 +10,13 @@ which is very annoying. To resolve this you need to login as them once and appro
 
 Question: How to I use it?
 
-Answer: This is a node.js application so you'll need node.js installed on your system. After that you simply need to open a command shell and navigate to the directory the server.js file is in, then run 
+Answer: This is a node.js application so you'll need node.js installed on your system. Then you'll need to fill out the values in your config/config.json file. Then you'll need the key file for the certificate you used in your connected app. It should look something like
+
+-----BEGIN PRIVATE KEY-----
+BUNCH OF STUFF HERE==
+-----END PRIVATE KEY-----
+
+After that you simply need to open a command shell and navigate to the directory the server.js file is in, then run 
 
 node server.js
 

@@ -1,0 +1,12 @@
+{
+     "loginURI": "https://test.salesforce.com",
+     "tokenURI": "https://test.salesforce.com/services/oauth2/token",
+     "authorizationURI": "https://test.salesforce.com/services/oauth2/authorize",
+     "client_id": "YOUR CONNECTED APP CLIENT ID HERE",
+     "client_secret": "YOUR CONNECTED APP CLIENT SECRET HERE",
+     "user": "SF USERNAME TO AUTHORIZE",
+     "certificate_key_file": "server.key",
+     "oauth_redirect_url": "https://oauthdebugger.com/debug",
+     "oauth_scope": "api refresh_token offline_access full",
+     "custom_domain": "YOUR CUSTOM DOMAIN HERE"
+}

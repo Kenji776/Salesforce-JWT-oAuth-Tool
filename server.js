@@ -90,6 +90,14 @@ async function performAuthRequest(){
  
 	let url = `${baseUrl}?client_id=${params.client_id}^&redirect_uri=${params.redirect_uri}^&scope${params.scope}^&response_type=code^&response_mode=query`;
  
+ 	let request = {
+		'URI': url,
+	};
+	
+	fs.writeFile('logs\\user_authorization_code_request.json', JSON.stringify(request, null, 5), function (err) {
+	  if (err) return log(err);
+	});	
+	
 	log('Auth request URL: ' + url,false);
 	require('child_process').exec(start + ' ' + url);
 	
@@ -97,7 +105,7 @@ async function performAuthRequest(){
 	const authCode = await prompUser("\nPlease enter Authorization code: ");
 	authorizeUser(authCode);
 	
-	fs.writeFile('logs\\user_authorization_code.txt', authCode, function (err) {
+	fs.writeFile('logs\\user_authorization_code_response.json', authCode, function (err) {
 	  if (err) return log(err);
 	});
 }
@@ -117,6 +125,14 @@ async function authorizeUser(authCode){
 	}
 
 	let url = `${baseUrl}?grant_type=${params.grant_type}&code=${params.code}&client_id=${params.client_id}&client_secret=${params.client_secret}&redirect_uri=${params.redirect_uri}`;
+
+	let request = {
+		'URI': url,
+	};
+	
+	fs.writeFile('logs\\authorize_user_request.json', JSON.stringify(request, null, 5), function (err) {
+	  if (err) return log(err);
+	});	
 	
 	log(url);
 	
@@ -125,7 +141,7 @@ async function authorizeUser(authCode){
 		let parsedData = JSON.parse(JSON.stringify(grant.data));	
 		log(parsedData);
 		
-		fs.writeFile('logs\\authorize_user_response.txt', JSON.stringify(parsedData, null, 5), function (err) {
+		fs.writeFile('logs\\authorize_user_response.json', JSON.stringify(parsedData, null, 5), function (err) {
 		  if (err) return log(err);
 		});
 
@@ -163,7 +179,12 @@ async function getJWT(){
 		},
 	};
 
-	fs.writeFile('logs\\jwt_assertion.json', JSON.stringify(token, null, 5), function (err) {
+	let request = {
+		'URI': config.tokenURI,
+		'Payload' : payloadString,
+		'Headers' : axiosConfig.headers
+	};
+	fs.writeFile('logs\\jwt_assertion.json', JSON.stringify(request, null, 5), function (err) {
 	  if (err) return log(err);
 	});	
 		

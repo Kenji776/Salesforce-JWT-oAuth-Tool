@@ -7,7 +7,8 @@ const readline = require('readline');
 start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
 config = {};
 
-
+delimiter = ( process.platform == 'win32' ? '\\' : '/' ); 
+escapeChr = ( process.platform == 'win32' ? '^' : '\\' ); 
 
 
 async function init(){
@@ -35,7 +36,7 @@ async function menu(){
 	if(choice == 1) performAuthRequest();
 	else if(choice == 2) getJWT();
 	else if(choice == 3) {
-		let accessToken = getAccessTokenFromFile('logs\\jwt_response.json');
+		let accessToken = getAccessTokenFromFile('logs' + delimiter + 'jwt_response.json');
 		if(accessToken != null) performSampleRequest(accessToken);
 		else menu();
 	}
@@ -47,7 +48,7 @@ async function menu(){
 }
 function readConfigs(fileName){	
 	log('Loading configs',false);
-	let configData = fs.readFileSync('config\\'+fileName);
+	let configData = fs.readFileSync('config' + delimiter +fileName);
 	log('Loaded raw config data',false);
 	log(configData.toString(),false);
 	let parsedConfig = JSON.parse(configData);
@@ -69,7 +70,7 @@ async function help(){
 }
 
 async function showLogs(){
-	let fileData = fs.readFileSync('logs\\log.txt').toString();
+	let fileData = fs.readFileSync('logs' + delimiter + 'log.txt').toString();
 	console.log(fileData);
 	const choice = await prompUser("\nPress enter to continue");
 	menu();
@@ -88,13 +89,13 @@ async function performAuthRequest(){
 	}
 	
  
-	let url = `${baseUrl}?client_id=${params.client_id}^&redirect_uri=${params.redirect_uri}^&scope${params.scope}^&response_type=code^&response_mode=query`;
- 
+	let url = `${baseUrl}?client_id=${params.client_id}${escapeChr}&redirect_uri=${params.redirect_uri}${escapeChr}&scope=${params.scope}${escapeChr}&response_type=code${escapeChr}&response_mode=query`;
+	log( 'Opening ' + url );
  	let request = {
 		'URI': url,
 	};
 	
-	fs.writeFile('logs\\user_authorization_code_request.json', JSON.stringify(request, null, 5), function (err) {
+	fs.writeFile('logs' + delimiter + 'user_authorization_code_request.json', JSON.stringify(request, null, 5), function (err) {
 	  if (err) return log(err);
 	});	
 	
@@ -105,7 +106,7 @@ async function performAuthRequest(){
 	const authCode = await prompUser("\nPlease enter Authorization code: ");
 	authorizeUser(authCode);
 	
-	fs.writeFile('logs\\user_authorization_code_response.json', authCode, function (err) {
+	fs.writeFile('logs' + delimiter + 'user_authorization_code_response.json', authCode, function (err) {
 	  if (err) return log(err);
 	});
 }
@@ -130,7 +131,7 @@ async function authorizeUser(authCode){
 		'URI': url,
 	};
 	
-	fs.writeFile('logs\\authorize_user_request.json', JSON.stringify(request, null, 5), function (err) {
+	fs.writeFile('logs' + delimiter + 'authorize_user_request.json', JSON.stringify(request, null, 5), function (err) {
 	  if (err) return log(err);
 	});	
 	
@@ -141,7 +142,7 @@ async function authorizeUser(authCode){
 		let parsedData = JSON.parse(JSON.stringify(grant.data));	
 		log(parsedData);
 		
-		fs.writeFile('logs\\authorize_user_response.json', JSON.stringify(parsedData, null, 5), function (err) {
+		fs.writeFile('logs' + delimiter + 'authorize_user_response.json', JSON.stringify(parsedData, null, 5), function (err) {
 		  if (err) return log(err);
 		});
 
@@ -184,7 +185,7 @@ async function getJWT(){
 		'Payload' : payloadString,
 		'Headers' : axiosConfig.headers
 	};
-	fs.writeFile('logs\\jwt_assertion.json', JSON.stringify(request, null, 5), function (err) {
+	fs.writeFile('logs' + delimiter + 'jwt_assertion.json', JSON.stringify(request, null, 5), function (err) {
 	  if (err) return log(err);
 	});	
 		
@@ -198,7 +199,7 @@ async function getJWT(){
 		grant = await axios.post(config.tokenURI, payloadString, axiosConfig);
 		let parsedData = JSON.parse(JSON.stringify(grant.data));
 		log(parsedData);
-		fs.writeFile('logs\\jwt_response.json', JSON.stringify(parsedData, null, 5), function (err) {
+		fs.writeFile('logs' + delimiter + 'jwt_response.json', JSON.stringify(parsedData, null, 5), function (err) {
 		  if (err) return log(err);
 		});	
 	} catch (err) {
@@ -239,12 +240,12 @@ function getAccessTokenFromFile(fileName){
 
 	log('Reading access token from file ' + fileName, false);
 	
-	if (!fs.existsSync('logs\\jwt_response.json')) {
+	if (!fs.existsSync('logs' + delimiter + 'jwt_response.json')) {
 		log('Could not find access token file: ' + fileName +'. Please get JWT and try again', true, 'red');
 		return null;
 	}
 	
-	let fileData = fs.readFileSync('logs\\jwt_response.json').toString();
+	let fileData = fs.readFileSync('logs' + delimiter + 'jwt_response.json').toString();
 	log('Reading access file data: ' + fileData, false);
 	let accessTokenObject = JSON.parse(fileData);
 	log('Parsed data: ', false);
@@ -285,7 +286,7 @@ function log(logItem,printToScreen,color)
 		console.log(logItem);
 		console.log('\x1b[0m');
 	}
-	fs.appendFile('logs\\log.txt', logItem + '\r\n', function (err) {
+	fs.appendFile('logs' + delimiter + 'log.txt', logItem + '\r\n', function (err) {
 		if (err) throw err;
 	});	
 }
@@ -300,11 +301,11 @@ async function setup(){
 		fs.mkdirSync(logsDir);
 	}
 	
-	if (!fs.existsSync(configDir+'\\config.json')) {
+	if (!fs.existsSync(configDir + delimiter + 'config.json')) {
   
 			log('\n\n\n\nCONFIGURATION FILE DID NOT EXIST. AN EMPTY CONFIGURATION HAS BEEN CREATED BUT YOU MUST POPULATE IT WITH VALUES BEFORE CONTINUING!      \n\n\n\n\n',true,'red');
 			
-			fs.writeFileSync('config\\config.json', JSON.stringify(JSON.parse(getDefaultConfigJson()), null, 5), function (err) {
+			fs.writeFileSync('config' + delimiter + 'config.json', JSON.stringify(JSON.parse(getDefaultConfigJson()), null, 5), function (err) {
 			  if (err) return log(err);
 			});
 			
@@ -325,7 +326,7 @@ function getDefaultConfigJson(){
 	  '"certificate_key_file" : "server.key",' +
 	  '"oauth_redirect_url" : "https://oauthdebugger.com/debug",' +
 	  '"oauth_scope" : "api refresh_token offline_access full", ' +
-	  '"custom_domain" : "YOUR CUSTOM DOMAIN HERE" ' +
+	  '"custom_domain" : "https://YOUR CUSTOM DOMAIN HERE" ' +
 	'}';
 }
 
